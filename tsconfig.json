@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
     "target": "es5",
     "noImplicitAny": false,
     "sourceMap": false,
@@ -8,10 +7,10 @@
     "outDir": "./build/"
   },
   "files": [
-      "./typings/tsd.d.ts"
+    "./typings/tsd.d.ts"
   ],
   "include": [
-      "./src/**/*"
+    "./src/**/*"
   ]
 }
 

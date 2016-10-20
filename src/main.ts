@@ -6,18 +6,22 @@
 //   theme: 'blackglass'
 // };
 
-declare var UNREDD;
-declare var messages;
+import { LayersJson } from './layers';
+// import TimeSlider from './time-slider';
 
-interface Date {
-	setISO8601(a: String): boolean
-};
+// declare var UNREDD;
+// declare var messages;
 
-let languageCode = 'en'; // TODO
-let layers_json = {}; // TODO
+// interface Date {
+//   setISO8601(a: string): boolean;
+// }
 
-messages = {};
-UNREDD = {
+let languageCode = 'en', // TODO
+    layers_json = {}; // TODO
+
+let messages = { data_source: "Source", months: null }; // TODO
+
+let UNREDD = {
   allLayers: {},
   visibleLayers: [],
   queryableLayers: [],
@@ -25,34 +29,44 @@ UNREDD = {
   mapContexts: {},
   fb_toolbar: {},
   stats_toolbar: {},
-  times: []
+  times: [],
+
+  Layer: null,
+  wmsServers: [],
+  Context: null,
+  maxResolution: null,
+  maxExtent: null,
+  restrictedExtent: null,
+  map: null,
+  layerInfo: null,
+  customInit: null
 };
 
-UNREDD.Layer = function(layerId, layerDefinition)
-{
+UNREDD.Layer = function(layerId, layerDefinition) {
   this.name = layerId
   this.configuration = layerDefinition;
   
   // set WMS servers urls
-  var baseUrl = layerDefinition.baseUrl;
-  var urls = [];
+  let baseUrl = layerDefinition.baseUrl,
+      urls = [];
+
   if ((/^http:/).test(baseUrl)) {
     // If LayerDefinition is an absolute URL, don't use UNREDD.wmsServers
     urls = [baseUrl];
   } else {
-    var urlsLength = UNREDD.wmsServers.length;
-    for (var i = 0; i < urlsLength; i++) {
-      var server = UNREDD.wmsServers[i];
+    let urlsLength = UNREDD.wmsServers.length;
+    for (let i = 0; i < urlsLength; i++) {
+      let server = UNREDD.wmsServers[i];
       urls.push(server + baseUrl);
     }
   }
   
   // Set WMS paramaters that are common to all layers
-  var wmsParams = { layers: layerDefinition.wmsName, format: layerDefinition.imageFormat, transparent: true };
+  let wmsParams = { layers: layerDefinition.wmsName, format: layerDefinition.imageFormat, transparent: true };
 
   // Add custom wms parameters
-  var wmsParameters = layerDefinition.wmsParameters;
-  for (var paramName in wmsParameters) {
+  let wmsParameters = layerDefinition.wmsParameters;
+  for (let paramName in wmsParameters) {
     if (wmsParameters.hasOwnProperty(paramName)) {
       wmsParams[paramName] = wmsParameters[paramName];
     }
@@ -81,14 +95,14 @@ UNREDD.Context = function(contextId, contextDefinition)
   }
   */
 
-  var nLayers = 0;
+  let nLayers = 0;
 
   this.name = contextId;
   this.configuration = contextDefinition;
   this.layers = [];
 
   this.setVisibility = function(active) {
-    for (var i = 0; i < nLayers; i++) {
+    for (let i = 0; i < nLayers; i++) {
       this.layers[i].olLayer.setVisibility(active);
       this.configuration.active = active;
     }
@@ -96,8 +110,8 @@ UNREDD.Context = function(contextId, contextDefinition)
 
   if (contextDefinition.layers) {
     nLayers = contextDefinition.layers.length;
-    for (var i = 0; i < nLayers; i++) {
-      var layerName = contextDefinition.layers[i];
+    for (let i = 0; i < nLayers; i++) {
+      let layerName = contextDefinition.layers[i];
       this.layers.push(UNREDD.allLayers[layerName]);
         if (contextDefinition.layersCustomParams && contextDefinition.layersCustomParams[layerName]) {
           UNREDD.allLayers[layerName].olLayer.mergeNewParams(contextDefinition.layersCustomParams[layerName]);
@@ -106,23 +120,21 @@ UNREDD.Context = function(contextId, contextDefinition)
   }
 
   this.hasLegend = (function() {
-    for (var i = 0; i < nLayers; i++) {
+    for (let i = 0; i < nLayers; i++) {
       if (this.layers[i].configuration.hasOwnProperty('legend')) return true;
     }
     return false;
   }).call(this);
 }
 
-var isoDateString;
-
-Date.prototype.setISO8601 = function(string) {
-  var regexp = "([0-9]{4})(-([0-9]{2})(-([0-9]{2})" +
+Date.prototype['setISO8601'] = function(string) {
+  let regexp = "([0-9]{4})(-([0-9]{2})(-([0-9]{2})" +
                "(Z|(([-+])([0-9]{2}):([0-9]{2})))?)?)?)?",
       d = string.match(new RegExp(regexp));
   if (d) {
-    var date = new Date(+d[1], 0, 1),
-    offset = 0,
-    time;
+    let date = new Date(+d[1], 0, 1),
+        offset = 0,
+        time;
   
     if (d[3])  { date.setMonth(+d[3] - 1); }
     if (d[5])  { date.setDate(+d[5]); }
@@ -145,7 +157,7 @@ Date.prototype.setISO8601 = function(string) {
   }
 };
 
-isoDateString = function(d) {
+let isoDateString = function(d) {
   // 2000-01-01T00:00:00.000Z
   function pad(n) {
     return n < 10 ? '0' + n : n;
@@ -165,25 +177,23 @@ $(document).ready(function() {
 });
 
 $(window).load(function() {
-  console.log(OpenLayers);
-
-  var parse_layers_json,
-    openLayersOptions,
-    styleMap, // TODO: check if the following ones can be local to some function
-    highlightLayer,
-    showInfo,
-    setLayersTime,
-    selectedDate,
-    legendOn = false,
-    year,
-    infoControl,
-    getClosestPastDate,
-    getClosestFutureDate,
-    getLocalizedDate,
-    updateActiveLayersPane,
-    mapContexts = {},
-    setContextVisibility,
-    resizeMapDiv;
+  let parse_layers_json,
+      openLayersOptions,
+      styleMap, // TODO: check if the following ones can be local to some function
+      highlightLayer,
+      showInfo,
+      setLayersTime,
+      selectedDate,
+      legendOn = false,
+      year,
+      infoControl,
+      getClosestPastDate,
+      getClosestFutureDate,
+      getLocalizedDate,
+      updateActiveLayersPane,
+      mapContexts = {},
+      setContextVisibility,
+      resizeMapDiv;
 
   // Set map div height
   resizeMapDiv = function() {
@@ -242,8 +252,8 @@ $(window).load(function() {
   };
 
   UNREDD.map = new OpenLayers.Map('map', openLayersOptions);
-   
-  parse_layers_json = function(data_) {
+
+  parse_layers_json = function(data_: LayersJson) {
     var setupAllContexts,
     setLegends,
     loadContextGroups;
@@ -393,21 +403,21 @@ $(window).load(function() {
     loadContextGroups = function(contextGroups, level, element) {
       $.each(contextGroups.items, function(contextGroupName, contextGroupDefinition) {
         var innerElement = null,
-        accordionHeader,
-        contextsDiv,
-        header,
-        contextName,
-        tr,
-        td1,
-        td2,
-        td3,
-        td4,
-        infoButton,
-        inlineLegend,
-        active,
-        context,
-        contextConf,
-        checkbox;
+            accordionHeader,
+            contextsDiv,
+            header,
+            contextName,
+            tr,
+            td1,
+            td2,
+            td3,
+            td4,
+            infoButton,
+            inlineLegend,
+            active,
+            context,
+            contextConf,
+            checkbox;
 
         if (contextGroupDefinition.hasOwnProperty('group')) {
           // it's a group
@@ -606,12 +616,12 @@ $(window).load(function() {
 
     showInfo = function(evt, infoHTML) {
       var x = evt.xy.x - 100,
-        y = evt.xy.y - 200,
-        i,
-        feature,
-        featureType,
-        nSelectedFeatures = 0,
-        infoPopup = $("#info_popup");
+          y = evt.xy.y - 200,
+          i,
+          feature,
+          featureType,
+          nSelectedFeatures = 0,
+          infoPopup = $("#info_popup");
 
       highlightLayer.destroyFeatures();
       selectedFeatures = {};
@@ -666,9 +676,9 @@ $(window).load(function() {
         let flag = true;
         $.each(selectedFeatures, function(layerId, feature) {
           var table,
-            info,
-            td1, td2, td3,
-            tr1, tr2, tr3;
+              info,
+              td1, td2, td3,
+              tr1, tr2, tr3;
           
           if (UNREDD.layerInfo.hasOwnProperty(layerId)) {
             info = UNREDD.layerInfo[layerId](feature);
@@ -779,7 +789,13 @@ $(window).load(function() {
     };
   };
   
-  parse_layers_json(layers_json);
+
+  $.ajax({
+    url: "src/layers.json",
+    type: "GET",
+    dataType: "json",
+    contentType: "application/json; charset=utf-8"
+  }).then(res => parse_layers_json(res as LayersJson))
 
   /*
   $.ajax({
@@ -866,8 +882,8 @@ $(window).load(function() {
   // Time slider management
   getClosestPastDate = function(date, dateArray, layer) {
     var result = null,
-    dateInArray,
-    i, d;
+        dateInArray,
+        i, d;
 
     for (i = 0; i < dateArray.length; i++) {
       dateInArray = dateArray[i];
@@ -882,8 +898,8 @@ $(window).load(function() {
 
   getClosestFutureDate = function(date, dateArray, layer) {
     var result = null,
-      dateInArray,
-      i, d;
+        dateInArray,
+        i, d;
 
     for (i = 0; i < dateArray.length; i++) {
       dateInArray = dateArray[i];
@@ -907,11 +923,11 @@ $(window).load(function() {
     // loop through layers to see if they are time dependent'type': 'iframe',
     $.each(UNREDD.timeDependentLayers, function(layerName, layer) {
       var sDates,
-        dates = [],
-        i,
-        d,
-        newDate,
-        layerInfo = layer.configuration;
+          dates = [],
+          i,
+          d,
+          newDate,
+          layerInfo = layer.configuration;
 
       // parse the wmsTime string
       sDates = layerInfo.wmsTime.split(",");
@@ -942,6 +958,14 @@ $(window).load(function() {
   /* Time Slider
    **************/
   // Calculate UNREDD.times from layer configuration
+
+  // let wmsTimes = Object.keys(UNREDD.allLayers)
+  //                      .map(k => UNREDD.allLayers[k]) // get object values
+  //                      .map(layer => layer.wmsTime)
+  //                      .filter(time => !!time);
+
+  // let timeSlider = new TimeSlider(wmsTimes);
+
   var timesObj = {};
   for (let layer in UNREDD.allLayers) {
     var layerTimes = UNREDD.allLayers[layer].configuration.wmsTime;
@@ -1431,7 +1455,7 @@ $(window).load(function() {
 
 // given a feature this method create a html snippets to show its getFeatureInfo results
 function genericInfoContent(feature) {
-  var ret = "<div><table>";
+  let ret = "<div><table>";
   $.each(feature.attributes, function(index, attribute) {
     ret += "<tr><td>" + index + "</td><td>" + attribute + "</td></tr>";
     return true;
