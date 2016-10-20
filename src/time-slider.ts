@@ -1,12 +1,12 @@
 export default class TimeSlider {
   constructor(wmsTimes: string[]) {
-    // wmsTimes.reduce((previous, current) => [], [])
+    // wmsTimes is an array of comma-separated years
     let times = wmsTimes.reduce((previous, current) => previous.concat(current.split(',')), [])
-                        .filter((elem, pos, arr) => arr.indexOf(elem) == pos); // remove duplicates - TODO use sets
-
-    console.log('ecchice!');
-    console.log(times);
+                        .filter((elem, pos, arr) => arr.indexOf(elem) == pos); // remove duplicate dates
   }
+
+  console.log(times);
+  // TODO
 }
 
 
