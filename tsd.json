@@ -1,0 +1,21 @@
+{
+  "version": "v4",
+  "repo": "borisyankov/DefinitelyTyped",
+  "ref": "master",
+  "path": "typings",
+  "bundle": "typings/tsd.d.ts",
+  "installed": {
+    "jquery/jquery.d.ts": {
+      "commit": "93cd5a76d0cd1ea7c2a4968979a659a561afd112"
+    },
+    "openlayers/openlayers-2.10.0.d.ts": {
+      "commit": "4a3c0197cc63cffda7570844c3f6ebc9f4475587"
+    },
+    "jqueryui/jqueryui.d.ts": {
+      "commit": "93cd5a76d0cd1ea7c2a4968979a659a561afd112"
+    },
+    "fancybox/fancybox.d.ts": {
+      "commit": "93cd5a76d0cd1ea7c2a4968979a659a561afd112"
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "noImplicitAny": false,
+    "sourceMap": false,
+    "allowJs": true,
+    "outDir": "./build/"
+  },
+  "files": [
+      "./typings/tsd.d.ts"
+  ],
+  "include": [
+      "./src/**/*"
+  ]
+}
+
+
+// {
+//   "compilerOptions": {
+//     // "module": "commonjs",
+//     "target": "es5",
+//     "outDir": "./built/",
+//     "jsx": "react",
+//     "sourceMap": true,
+//     "noImplicitAny": true
+//   },
+//   "files": [
+//     "./typings/tsd.d.ts"
+//     // "./src/reddit.ts",
+//     // "./src/RedditSubmission.tsx",
+//     // "./src/index.tsx"
+//   ]
+// }
+
+// {
+//   "compilerOptions": {
+//     "outDir": "./built",
+//     "allowJs": true,
+//     "target": "es5"
+//   },
+//   "include": [
+//     "./src/**/*"
+//   ]
+// }
