@@ -6,7 +6,7 @@
 //   theme: 'blackglass'
 // };
 
-import { LayersJson } from './layers';
+import * as layersJson from './layers';
 import TimeSlider from './time-slider';
 
 // declare var UNREDD;
@@ -42,7 +42,23 @@ let UNREDD = {
   customInit: null
 };
 
-UNREDD.Layer = function(layerId, layerDefinition) {
+
+
+// class Layer {
+//   name: string; // TODO rename as id
+//   configuration: layersJson.Layer;
+
+//   constructor(layerDefinition: layersJson.Layer) {
+//     this.name = layerDefinition.id;
+//     this.configuration = layerDefinition;
+//   }
+
+//   test() {
+//     return "Hello, " + this.name;
+//   }
+// }
+
+UNREDD.Layer = function(layerId: string, layerDefinition: layersJson.Layer) {
   this.name = layerId
   this.configuration = layerDefinition;
   
@@ -81,51 +97,31 @@ UNREDD.Layer = function(layerId, layerDefinition) {
   );
 }
 
-UNREDD.Context = function(contextId, contextDefinition)
+UNREDD.Context = function(contextId: string, contextDefinition: layersJson.Context)
 {
-  /*
-  contextDefinition object example:
-
-  "administrativeUnits":{
-    "id": "context_id",
-    "infoFile": "administrative_boundaries_def.html",
-    "label": "<spring:message code="admin_units" />",
-    "layers": ["administrativeUnits", "administrativeUnits_simp"],
-    "inlineLegendUrl": "/geoserver_drc/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=unredd:admin_units&TRANSPARENT=true"
-  }
-  */
-
-  let nLayers = 0;
+  var nLayers = 0;
 
   this.name = contextId;
   this.configuration = contextDefinition;
-  this.layers = [];
+  // this.layers = [];
 
   this.setVisibility = function(active) {
-    for (let i = 0; i < nLayers; i++) {
-      this.layers[i].olLayer.setVisibility(active);
+    this.layers.forEach(layer => {
+      layer.olLayer.setVisibility(active);
       this.configuration.active = active;
-    }
+    })
   }
 
-  if (contextDefinition.layers) {
-    nLayers = contextDefinition.layers.length;
-    console.log('nLayers = ' + nLayers);
-    for (let i = 0; i < nLayers; i++) {
-      let layerName = contextDefinition.layers[i];
-      this.layers.push(UNREDD.allLayers[layerName]);
-        if (contextDefinition.layersCustomParams && contextDefinition.layersCustomParams[layerName]) {
-          UNREDD.allLayers[layerName].olLayer.mergeNewParams(contextDefinition.layersCustomParams[layerName]);
-        }
-     }
-  }
+  this.layers = contextDefinition.layers ? contextDefinition.layers.map(layerName => UNREDD.allLayers[layerName]) : [];
 
-  this.hasLegend = (function() {
-    for (let i = 0; i < nLayers; i++) {
-      if (this.layers[i].configuration.hasOwnProperty('legend')) return true;
-    }
-    return false;
-  }).call(this);
+  // TODO: is this needed?
+  // this.layers.forEach(layerName => {
+  //   if (contextDefinition.layersCustomParams && contextDefinition.layersCustomParams[layerName]) {
+  //     UNREDD.allLayers[layerName].olLayer.mergeNewParams(contextDefinition.layersCustomParams[layerName]);
+  //   }
+  // });
+
+  this.hasLegend = this.layers.some(layer => layer.configuration.hasOwnProperty('legend'));
 }
 
 Date.prototype['setISO8601'] = function(string) {
@@ -180,7 +176,7 @@ $(document).ready(function() {
 $(window).load(function() {
   let parseLayersJson,
       openLayersOptions,
-      styleMap, // TODO: check if the following ones can be local to some function
+      styleMap,
       highlightLayer,
       showInfo,
       setLayersTime,
@@ -198,7 +194,7 @@ $(window).load(function() {
 
   // Set map div height
   resizeMapDiv = function() {
-    var bannerHeight = $('#banner').height() + $('#toolbar').height();
+    let bannerHeight = $('#banner').height() + $('#toolbar').height();
 
     $('#map').css('top', bannerHeight);
     $('#map').css('height', $(window).height() - bannerHeight);
@@ -214,7 +210,7 @@ $(window).load(function() {
   setContextVisibility = function(context, active) {
     context.setVisibility(active);
 
-    var icon = $('#' + context.name + '_inline_legend_icon');
+    let icon = $(`#${context.name}_inline_legend_icon`);
     if (active) {
       icon.addClass('on');
       icon.click(function(event) {
@@ -254,16 +250,15 @@ $(window).load(function() {
 
   UNREDD.map = new OpenLayers.Map('map', openLayersOptions);
 
-  parseLayersJson = function(data_: LayersJson) {
+  parseLayersJson = function(layersDef: layersJson.LayersJson) {
     let setupAllContexts,
-        setLegends,
-        loadContextGroups;
+        setLegends;
 
     // Create layers objects
-    $.each(data_.layers, function(i, layerDefinition) {
-      var layerId = layerDefinition.id;
-      var layer = new UNREDD.Layer(layerId, layerDefinition);
-      var oldIsoTimeRegexp = new RegExp("([0-9]{4})-01-01T00:00:00\\.000Z"); /** See wmsTime hack **/
+    layersDef.layers.forEach(layerDefinition => {
+      let layerId = layerDefinition.id,
+          layer = new UNREDD.Layer(layerId, layerDefinition),
+          oldIsoTimeRegexp = new RegExp("([0-9]{4})-01-01T00:00:00\\.000Z"); /** See wmsTime hack **/
 
       if (layerDefinition.visible) {
         UNREDD.visibleLayers.push(layer.olLayer);
@@ -274,40 +269,40 @@ $(window).load(function() {
         UNREDD.queryableLayers.push(layer.olLayer);
       }
       if (typeof layer.configuration.wmsTime !== 'undefined') {
-        /** Backwards-compatibility hack: convert former ISO times to simple years **/
-        var times = layer.configuration.wmsTime.split(",");
-        for(i=0; i < times.length; i++) {
+        /** Backwards-compatibility: convert former ISO times to simple years **/
+        let times = layer.configuration.wmsTime.split(",");
+        for (let i = 0; i < times.length; i++) {
           var match = times[i].match(oldIsoTimeRegexp);
           if (match) {
             times[i] = match[1];
           }
         }
         layer.configuration.wmsTime = times.join(",");
-        /** end-of-hack **/
+
         UNREDD.timeDependentLayers.push(layer);
       }
     });
 
     // Create context objects
-    $.each(data_.contexts, function(i, contextDefinition) {
-      var contextId = contextDefinition.id;
-      var context = new UNREDD.Context(contextId, contextDefinition);
+    layersDef.contexts.forEach(contextDefinition => {
+      let contextId = contextDefinition.id,
+          context = new UNREDD.Context(contextId, contextDefinition);
+
       UNREDD.mapContexts[contextId] = context;
     });
 
-    var contextGroups = data_.contextGroups;
+    let contextGroups = layersDef.contextGroups;
 
     setupAllContexts = function() {
       // look for active contexts
       $.each(UNREDD.mapContexts, function(contextName, context) {
-        var active = typeof context.configuration.active !== 'undefined' && context.configuration.active;
+        let active = typeof context.configuration.active !== 'undefined' && context.configuration.active;
         setContextVisibility(context, active);
       });
     };
 
     updateActiveLayersPane = function() {
-      var //div,
-      table, tr, td, td2, layers, inlineLegend, transparencyDiv;
+      let table, tr, td, td2, layers, inlineLegend, transparencyDiv;
       // empty the active_layers div (layer on the UI -> context here)
       $('#active_layers_pane div').empty();
 
@@ -315,13 +310,13 @@ $(window).load(function() {
       $('#active_layers_pane div').append(table);
 
       $.each(UNREDD.mapContexts, function(contextName, context) {
-        var contextConf = context.configuration;
+        let contextConf = context.configuration;
       
         if (contextConf.active) {
           // First row: inline legend and context name
           tr = $('<tr></tr>');
 
-          if (contextConf.hasOwnProperty('inlineLegendUrl')) {
+          if (contextConf.inlineLegendUrl) {
             td = $('<td style="width:20px"></td>');
             inlineLegend = $('<img class="inline-legend" src="' + UNREDD.wmsServers[0] + contextConf.inlineLegendUrl + '">');
             td.append(inlineLegend);
@@ -364,13 +359,12 @@ $(window).load(function() {
     // This implementation works only if two contexts don't have a layer in common.
     // A better implementation would have to scan all the active contexts and see which layers should be visible
     setLegends = function(context, contextIsActive) {
-      $.each(context.layers, function(n, layer) {
-        var //legendFile,
-        layerConf = layer.configuration,
-        table,
-        legendName;
+      context.layers.forEach(layer => {
+        let layerConf = layer.configuration,
+            table,
+            legendName;
 
-        if (layerConf.visible && typeof layerConf.legend !== "undefined") {
+        if (layerConf.visible && layerConf.legend) {
           //legendFile = layerDef.legend;
           legendName = context.name + '_legend';
 
@@ -381,7 +375,7 @@ $(window).load(function() {
             table += '<tr class="legend_header">';
             table += '<td class="layer_name">' + layerConf.label + '</td>';
           
-            if (typeof layerConf.sourceLink !== "undefined") {
+            if (layerConf.sourceLink) {
               table += '<td class="data_source_link"><span class="lang" id="data_source">' + messages.data_source + ':</span> <a target="_blank" href="' + layerConf.sourceLink + '">' + layerConf.sourceLabel + '</a></td>';
             } else {
               table += "<td></td>";
@@ -401,34 +395,21 @@ $(window).load(function() {
     // Though recursive and ready for n level groupings with some adjustments, this function
     // is meant to work with three level grouping of contexts
     // TODO: use some templating engine?
-    loadContextGroups = function(contextGroups, level, element) {
-      $.each(contextGroups.items, function(contextGroupName, contextGroupDefinition) {
-        var innerElement = null,
-            accordionHeader,
-            contextsDiv,
-            header,
-            contextName,
-            tr,
-            td1,
-            td2,
-            td3,
-            td4,
-            infoButton,
-            inlineLegend,
-            active,
-            context,
-            contextConf,
-            checkbox;
+    const loadContextGroups = function(contextGroups: layersJson.ContextGroup, level: number, element: JQuery) {
+      $.each(contextGroups.items, function(contextGroupName: string, contextGroupDefinition: layersJson.ContextGroup) {
+        let infoButton;
+        
+        if (contextGroupDefinition.group) {
+          let innerElement = null;
 
-        if (contextGroupDefinition.hasOwnProperty('group')) {
           // it's a group
           if (level === 0) {
+            let accordionHeader;
             // it's an accordion header
-            if (typeof contextGroupDefinition.group.infoFile !== 'undefined') {
+            if (!!contextGroupDefinition.group.infoFile) {
               // accordion header has a info file - we add info button
-              accordionHeader = $('<div style="position:relative" class="accordion_header"><a style="width:190px" href="#">' + contextGroupDefinition.group.label
-                + '</a></div>');
-              infoButton = $('<a style="position:absolute;top:3px;right:7px;width:16px;height:16px;padding:0;" class="layer_info_button" href="static/loc/' + languageCode + '/html/' + contextGroupDefinition.group.infoFile + '"></a>')
+              accordionHeader = $(`<div style="position:relative" class="accordion_header"><a style="width:190px" href="#">${contextGroupDefinition.group.label}</a></div>`);
+              infoButton = $(`<a style="position:absolute;top:3px;right:7px;width:16px;height:16px;padding:0;" class="layer_info_button" href="static/loc/${languageCode}/html/${contextGroupDefinition.group.infoFile}"></a>`)
               accordionHeader.append(infoButton);
             
               // prevent accordion item from expanding when clicking on the info button
@@ -437,24 +418,24 @@ $(window).load(function() {
               });
               
               infoButton.fancybox({
-                'autoScale' : false,
-                'openEffect' : 'elastic',
-                'closeEffect' : 'elastic',
+                'autoScale': false,
+                'openEffect': 'elastic',
+                'closeEffect': 'elastic',
                 'type': 'ajax',
                 'overlayOpacity': 0.5
               });
             } else {
-              accordionHeader = $("<div class=\"accordion_header\"><a href=\"#\">" +  contextGroupDefinition.group.label + "</a></div>");
+              accordionHeader = $(`<div class="accordion_header"><a href="#">${contextGroupDefinition.group.label}</a></div>`);
             }
             element.append(accordionHeader);
-            contextsDiv = $("<div class=\"context_buttonset\"></div>");
+            let contextsDiv = $('<div class="context_buttonset"></div>');
             innerElement = $('<table style="width:100%;border-collapse:collapse"></table>');
 
             contextsDiv.append(innerElement);
             element.append(contextsDiv);
           } else {
             // we are inside of an accordion element
-            header = $("<div><a style=\"color:white;\" href=\"#\">" + contextGroupDefinition.group.label + "</a></div>");
+            let header = $("<div><a style=\"color:white;\" href=\"#\">" + contextGroupDefinition.group.label + "</a></div>");
             element.append(header);
             innerElement = $('<table class="second_level" style="width:100%"></table>');
             element.append(innerElement);
@@ -464,35 +445,34 @@ $(window).load(function() {
         } else {
           // it's a context in a group
           if (element !== null) {
-            contextName = contextGroupDefinition.context;
-            active = UNREDD.mapContexts[contextName].configuration.active;
-            
-            context = UNREDD.mapContexts[contextName];
-            contextConf = context.configuration;
+            let contextName = contextGroupDefinition.context,
+                active = UNREDD.mapContexts[contextName].configuration.active,
+                context = UNREDD.mapContexts[contextName],
+                contextConf = context.configuration,
+                tr, td1, td2, td3, td4;
 
-            if (typeof context !== "undefined" && typeof context.configuration.layers !== "undefined") {
-
+            if (typeof context !== 'undefined' && typeof context.configuration.layers !== 'undefined') {
               tr = $('<tr class="layer_row">');
-
-              if (contextConf.hasOwnProperty('inlineLegendUrl')) {
+              if (contextConf.inlineLegendUrl) {
                 // context has an inline legend
+                let inlineLegend = $(`<img class="inline-legend" src="${UNREDD.wmsServers[0] + contextConf.inlineLegendUrl}">`);
+
                 td1 = $('<td style="width:20px">');
-                inlineLegend = $('<img class="inline-legend" src="' + UNREDD.wmsServers[0] + contextConf.inlineLegendUrl + '">');
                 td1.append(inlineLegend);
               } else if (context.hasLegend) {
                 // context has a legend to be shown on the legend pane - we add a link to show the legend pane
                 if (active) {
-                  td1 = $('<td style="font-size:9px;width:20px;height:20px"><a id="' + contextName + '_inline_legend_icon" class="inline_legend_icon on"></a></td>');
+                  td1 = $(`<td style="font-size:9px;width:20px;height:20px"><a id="${contextName}_inline_legend_icon" class="inline_legend_icon on"></a></td>`);
                   // add the legend to the legend pane (hidden when page loads)
                   setLegends(context, true);
                 } else {
-                  td1 = $('<td style="font-size:9px;width:20px;height:20px"><a id="' + contextName + '_inline_legend_icon" class="inline_legend_icon"></a></td>');
+                  td1 = $(`<td style="font-size:9px;width:20px;height:20px"><a id="${contextName}_inline_legend_icon" class="inline_legend_icon"></a></td>`);
                 }
               } else {
                 td1 = $('<td></td>');
               }
 
-              checkbox = $('<div class="checkbox" id="' + contextName + "_checkbox" + '"></div>');
+              let checkbox = $(`<div class="checkbox" id="${contextName}_checkbox"></div>`);
               if (active) {
                 checkbox.addClass('checked');
               }
@@ -505,14 +485,14 @@ $(window).load(function() {
               // Add date for label if time dependant layer
               var layerName = context.configuration.layers[0];
               if (UNREDD.allLayers[layerName].configuration.wmsTime) {
-                let datespan = $('<span id="' + layerName + '_date"></span>"');
+                let datespan = $(`<span id="${layerName}_date"></span>"`);
                 td3.append(datespan);
               }
               
               td4 = $('<td style="width:16px;padding:0">');
 
               if (typeof contextConf.infoFile !== 'undefined') { // TODO: put previous line inside this
-                infoButton = $('<a class="layer_info_button" id="' + contextName + '_info_button" href="static/loc/' + languageCode + '/html/' + contextConf.infoFile + '"></a>');
+                infoButton = $(`<a class="layer_info_button" id="${contextName}_info_button" href="static/loc/${languageCode}/html/${contextConf.infoFile}"></a>`);
                 td4.append(infoButton);
               }
               if (td1) {
@@ -521,15 +501,6 @@ $(window).load(function() {
               tr.append(td2, td3, td4);
 
               element.append(tr);
-
-              // The :hover pseudo-selector on non-anchor elements is known to make IE7 and IE8 slow in some cases
-              /*
-              tr.mouseenter(function() {
-                tr.addClass('hover');
-              }).mouseleave(function() {
-                tr.removeClass('hover');
-              });
-              */
 
               (function(element) {
                 // emulate native checkbox behaviour
@@ -556,7 +527,7 @@ $(window).load(function() {
               td1 = $('<td style="color:#FFF" colspan="3">');
               td1.text(contextConf.label);
               td2 = $('<td style="width:16px;padding:0">');
-              infoButton = $('<a class="layer_info_button" id="' + contextName + '_info_button" href="static/loc/' + languageCode + '/html/' + contextConf.infoFile + '"></a>');
+              infoButton = $(`<a class="layer_info_button" id="${contextName}_info_button" href="static/loc/${languageCode}/html/${contextConf.infoFile}"></a>`);
 
               td2.append(infoButton);
 
@@ -797,7 +768,7 @@ $(window).load(function() {
     dataType: "json",
     contentType: "application/json; charset=utf-8"
   }).then(res => {
-    parseLayersJson(res as LayersJson);
+    parseLayersJson(res as layersJson.LayersJson);
     setupTimeSlider();
   })
 
@@ -844,7 +815,7 @@ $(window).load(function() {
   }
 
   $("#legend_pane").dialog('close'); // using autoOpen, it doesn't show when you click the button - don't have time
-  $("#toggle_legend").click(function() {
+  $("#toggle_legend").click(() => {
     if (!legendOn) {
       openLegend(false);
     } else {
