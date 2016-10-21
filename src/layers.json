@@ -1,14 +1,14 @@
 {
   "layers": [{
     "id": "blueMarble",
-    "baseUrl": "/diss_geoserver/gwc/service/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/gwc/service/wms",
     "wmsName": "unredd:blue_marble",
     "imageFormat": "image/jpeg",
     "visible": true
   }, {
     "id": "forestClassification",
     "label": "FACET Forest Classification",
-    "baseUrl": "/diss_geoserver/gwc/service/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/gwc/service/wms",
     "wmsName": "unredd:facet_forest_classification",
     "imageFormat": "image/png8",
     "visible": true,
@@ -18,7 +18,7 @@
   }, {
     "id": "FnFMask1990",
     "label": "DRC 1990 Forest non Forest Mask",
-    "baseUrl": "/diss_geoserver/gwc/service/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/gwc/service/wms",
     "wmsName": "unredd:RDC_FNF_1990_V008C",
     "imageFormat": "image/png8",
     "visible": true,
@@ -28,7 +28,7 @@
   }, {
     "id": "uclForestClassification",
     "label": "UCL Forest Classification",
-    "baseUrl": "/diss_geoserver/gwc/service/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/gwc/service/wms",
     "wmsName": "unredd:ucl_forest_classification",
     "imageFormat": "image/png8",
     "visible": true,
@@ -37,7 +37,7 @@
     "sourceLabel": "UCL"
   }, {
     "id": "landsat",
-    "baseUrl": "/diss_geoserver/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/wms",
     "wmsTime":  "2000,2005",
     "wmsName": "unredd:landsat",
     "imageFormat": "image/png8",
@@ -49,7 +49,7 @@
     }	
   }, {
     "id": "hillshade",
-    "baseUrl": "/diss_geoserver/gwc/service/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/gwc/service/wms",
     "wmsName": "unredd:color_hillshade",
     "imageFormat": "image/png8",
     "visible": true,
@@ -58,7 +58,7 @@
   }, {
     "id": "fire",
     "label": "Fire",
-    "baseUrl": "/diss_geoserver/gwc/service/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/gwc/service/wms",
     "wmsName": "unredd:fires_2011",
     "imageFormat": "image/png8",
     "visible": true,
@@ -68,7 +68,7 @@
   }, {
     "id": "deforestation",
     "label": "Deforestation (Gross forest cover loss)",
-    "baseUrl": "/diss_geoserver/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/wms",
     "wmsName": "unredd:deforestation",
     "wmsTime":  "",
     "imageFormat": "image/png8",
@@ -82,7 +82,7 @@
   }, {
     "id": "trainingData",
     "label": "National Training Data",
-    "baseUrl": "/diss_geoserver/gwc/service/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/gwc/service/wms",
     "wmsName": "unredd:nov_2011_workshop",
     "imageFormat": "image/png8",
     "visible": true,
@@ -90,7 +90,7 @@
   }, {
     "id": "reddPlusProjects",
     "label": "REDD+ Projects",
-    "baseUrl": "/diss_geoserver/gwc/service/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/gwc/service/wms",
     "wmsName": "unredd:redd_plus_projects",
     "imageFormat": "image/png8",
     "visible": true,
@@ -99,7 +99,7 @@
     "sourceLabel": "OFAC"
   }, {
     "id": "reddPlusProjects_simp",
-    "baseUrl": "/diss_geoserver/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/wms",
     "wmsName": "unredd:redd_plus_projects_simp",
     "imageFormat": "image/png8",
     "visible": false,
@@ -107,7 +107,7 @@
   }, {
     "id": "reddPlusInitiatives",
     "label": "REDD+ Initiatives",
-    "baseUrl": "/diss_geoserver/gwc/service/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/gwc/service/wms",
     "wmsName": "unredd:redd_plus_initiatives",
     "imageFormat": "image/png8",
     "visible": true,
@@ -116,14 +116,14 @@
     "sourceLabel": "OFAC"
   }, {
     "id": "reddPlusInitiatives_simp",
-    "baseUrl": "/diss_geoserver/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/wms",
     "wmsName": "unredd:redd_plus_initiatives_simp",
     "imageFormat": "image/png8",
     "visible": false,
     "queryable": true
   }, {
     "id": "hydrography",
-    "baseUrl": "/diss_geoserver/gwc/service/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/gwc/service/wms",
     "wmsName": "unredd:hydrography",
     "imageFormat": "image/png8",
     "visible": true,
@@ -132,7 +132,7 @@
   }, {
     "id": "intactForest",
     "label": "Intact Forest",
-    "baseUrl": "/diss_geoserver/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/wms",
     "wmsTime": "2000,2005,2010",
     "wmsName": "unredd:intact_forest",
     "imageFormat": "image/png8",
@@ -146,7 +146,7 @@
   }, {
     "id": "loggingConcessions",
     "label": "Logging Concessions",
-    "baseUrl": "/diss_geoserver/gwc/service/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/gwc/service/wms",
     "wmsName": "unredd:logging_concessions",
     "imageFormat": "image/png8",
     "visible": true,
@@ -155,7 +155,7 @@
     "sourceLabel": "WRI"
   }, {
     "id": "loggingConcessions_simp",
-    "baseUrl": "/diss_geoserver/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/wms",
     "wmsName": "unredd:logging_concessions_simp",
     "imageFormat": "image/png8",
     "visible": false,
@@ -163,7 +163,7 @@
   }, {
     "id": "protectedAreas",
     "label": "Protected Areas",
-    "baseUrl": "/diss_geoserver/gwc/service/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/gwc/service/wms",
     "wmsName": "unredd:protected_areas",
     "imageFormat": "image/png8",
     "visible": true,
@@ -172,14 +172,14 @@
     "sourceLabel": "WRI"
   }, {
     "id": "protectedAreas_simp",
-    "baseUrl": "/diss_geoserver/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/wms",
     "wmsName": "unredd:protected_areas_simp",
     "imageFormat": "image/png8",
     "visible": false,
     "queryable": true
   }, {
     "id": "countryBoundaries",
-    "baseUrl": "/diss_geoserver/gwc/service/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/gwc/service/wms",
     "wmsName": "unredd:boundaries",
     "imageFormat": "image/png8",
     "visible": true,
@@ -187,7 +187,7 @@
     "sourceLabel": "WRI"
   }, {
     "id": "administrativeUnits",
-    "baseUrl": "/diss_geoserver/gwc/service/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/gwc/service/wms",
     "wmsName": "unredd:admin_units",
     "imageFormat": "image/png8",
     "visible": true,
@@ -195,14 +195,14 @@
     "sourceLabel": "WRI"
   }, {
     "id": "administrativeUnits_simp",
-    "baseUrl": "/diss_geoserver/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/wms",
     "wmsName": "unredd:admin_units_simp",
     "imageFormat": "image/png8",
     "visible": false,
     "queryable": true
   }, {
     "id": "provinces",
-    "baseUrl": "/diss_geoserver/gwc/service/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/gwc/service/wms",
     "wmsName": "unredd:provinces",
     "imageFormat": "image/png8",
     "visible": true,
@@ -210,14 +210,14 @@
     "sourceLabel": "WRI"
   }, {
     "id": "provinces_simp",
-    "baseUrl": "/diss_geoserver/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/wms",
     "wmsName": "unredd:provinces_simp",
     "imageFormat": "image/png8",
     "visible": false,
     "queryable": true
   }, {
     "id": "roads",
-    "baseUrl": "/diss_geoserver/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/wms",
     "wmsName": "unredd:roads",
     "imageFormat": "image/png8",
     "visible": true,
@@ -226,7 +226,7 @@
   }, {
     "id": "settlements",
     "label": "Settlements",
-    "baseUrl": "/diss_geoserver/gwc/service/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/gwc/service/wms",
     "wmsName": "unredd:settlements",
     "imageFormat": "image/png8",
     "visible": true,
@@ -236,7 +236,7 @@
   }, {
     "id": "ecoregions",
     "label": "Ecoregions",
-    "baseUrl": "/diss_geoserver/gwc/service/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/gwc/service/wms",
     "wmsName": "unredd:ecoregions",
     "imageFormat": "image/png8",
     "visible": true,
@@ -246,7 +246,7 @@
   }, {
     "id": "plots",
     "label": "Plots",
-    "baseUrl": "/diss_geoserver/wms",
+    "baseUrl": "http://rdc-snsf.org/diss_geoserver/wms",
     "wmsName": "unredd:plots",
     "imageFormat": "image/png8",
     "visible": true,

@@ -9,7 +9,7 @@ export interface Layer {
   baseUrl?: string,
   wmsName: string,
   imageFormat?: string,
-  visible?: string,
+  visible?: boolean,
   legend?: string,
   sourceLink?: string,
   sourceLabel?: string,

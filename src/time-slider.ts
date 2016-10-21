@@ -5,7 +5,7 @@ export default class TimeSlider {
                         .filter((elem, pos, arr) => arr.indexOf(elem) == pos); // remove duplicate dates
   }
 
-  console.log(times);
+  // console.log(times);
   // TODO
 }
 
