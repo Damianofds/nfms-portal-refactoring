@@ -28,7 +28,7 @@ let UNREDD = {
   times: [],
 
   Layer: null,
-  wmsServers: [], // DEBUG
+  wmsServers: [],
   Context: null,
   maxResolution: null,
   maxExtent: null,
@@ -42,7 +42,6 @@ let UNREDD = {
 UNREDD.maxExtent = new OpenLayers.Bounds(-20037508, -20037508, 20037508, 20037508);
 UNREDD.restrictedExtent = new OpenLayers.Bounds(-20037508, -20037508, 20037508, 20037508);
 UNREDD.maxResolution = 4891.969809375;
-
 
 // class Layer {
 //   name: string;
@@ -64,17 +63,19 @@ UNREDD.Layer = function(layerId: string, layerDefinition: layersJson.Layer) {
   
   // set WMS servers urls
   let baseUrl = layerDefinition.baseUrl,
-      urls = [];
+      urls = [baseUrl];
 
-  if ((/^http:/).test(baseUrl)) {
-    // If LayerDefinition is an absolute URL, don't use UNREDD.wmsServers
-    urls = [baseUrl];
-  } else {
+  if (!(/^http:/).test(baseUrl)) {
+    // If LayerDefinition is not an absolute URL, use UNREDD.wmsServers
     urls = UNREDD.wmsServers.map(server => server + baseUrl);
   }
-  
+
   // Set WMS paramaters that are common to all layers
-  let wmsParams = { layers: layerDefinition.wmsName, format: layerDefinition.imageFormat, transparent: true };
+  let wmsParams = {
+    layers: layerDefinition.wmsName,
+    format: layerDefinition.imageFormat,
+    transparent: true
+  };
 
   // Add custom wms parameters
   let wmsParameters = layerDefinition.wmsParameters;
@@ -102,8 +103,7 @@ UNREDD.Layer = function(layerId: string, layerDefinition: layersJson.Layer) {
   );
 }
 
-UNREDD.Context = function(contextId: string, contextDefinition: layersJson.Context)
-{
+UNREDD.Context = function(contextId: string, contextDefinition: layersJson.Context) {
   var nLayers = 0;
 
   this.name = contextId;
@@ -261,7 +261,7 @@ $(window).load(function() {
       let layerId = layerDefinition.id,
           layer = new UNREDD.Layer(layerId, layerDefinition),
           oldIsoTimeRegexp = new RegExp('([0-9]{4})-01-01T00:00:00\\.000Z'); /** See wmsTime hack **/
-
+      
       if (layerDefinition.visible) {
         UNREDD.visibleLayers.push(layer.olLayer);
       }
@@ -434,7 +434,7 @@ $(window).load(function() {
             element.append(contextsDiv);
           } else {
             // We are inside of an accordion element
-            let header = $("<div><a style=\"color:white;\" href=\"#\">" + contextGroupDefinition.group.label + "</a></div>");
+            let header = $(`<div><a style="color:white;" href="#">${contextGroupDefinition.group.label}</a></div>`);
             element.append(header);
             innerElement = $('<table class="second_level" style="width:100%"></table>');
             element.append(innerElement);
@@ -747,7 +747,6 @@ $(window).load(function() {
     };
   };
   
-
   $.ajax({
     url: 'src/layers.json',
     type: 'GET',
@@ -756,6 +755,7 @@ $(window).load(function() {
   }).then(res => {
     parseLayersJson(res as layersJson.LayersJson);
     setupTimeSlider();
+    UNREDD.map.addLayers(UNREDD.visibleLayers);
   })
   
   // Setup various UI elements
@@ -773,7 +773,7 @@ $(window).load(function() {
     }
   });
 
-  let openLegend = function(scrollToId) {
+  let openLegend = function(scrollToId?: JQuery) {
     if (!legendOn) {
       $('#legend_pane').dialog('open');
     }
@@ -793,7 +793,7 @@ $(window).load(function() {
   $('#legend_pane').dialog('close'); // Using autoOpen, it doesn't show when you click the button - don't have time
   $('#toggle_legend').click(() => {
     if (!legendOn) {
-      openLegend(false);
+      openLegend();
     } else {
       closeLegend();
     }
@@ -859,10 +859,11 @@ $(window).load(function() {
     return result;
   };
   
-  getLocalizedDate = function(date) {
+  getLocalizedDate = function(date: string) {
     let months = messages.months ? eval(messages.months) : ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'June', 'July', 'Aug.', 'Sep.', 'Oct.', 'Nov.', 'Dec.'],
         arr = date.split('-');
-    if (arr[1]) arr[1] = months[arr[1] - 1];
+    if (arr[1]) arr[1] = months[+arr[1] - 1];
+
     return arr.reverse().join(' ');
   };
   
@@ -1014,7 +1015,7 @@ $(window).load(function() {
   infoAsHTML.id = 'infoAsHTML';
   UNREDD.map.addControl(infoAsHTML);
   
-  UNREDD.map.addLayers(UNREDD.visibleLayers);
+  // UNREDD.map.addLayers(UNREDD.visibleLayers);
   // var wikimapia = new OpenLayers.Layer.Wikimapia( 'Wikimapia',
   //   { sphericalMercator: true, isBaseLayer: false, 'buffer': 0 });
   // map.addLayer(wikimapia);
@@ -1025,7 +1026,8 @@ $(window).load(function() {
     fillOpacity: 0,
     strokeColor: '#ee4400',
     strokeOpacity: 0.5,
-    strokeLinecap: 'round' });
+    strokeLinecap: 'round'
+  });
   highlightLayer = new OpenLayers.Layer.Vector('Highlighted Features', { styleMap: styleMap });
   UNREDD.map.addLayer(highlightLayer);
  
@@ -1049,5 +1051,5 @@ $(window).load(function() {
 // }
 
 function getURLParameter(name: string): string {
-  return decodeURI((RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,null])[1]);
+  return decodeURI((RegExp(`${name}=(.+?)(&|$)`).exec(location.search) || [,null])[1]);
 }
