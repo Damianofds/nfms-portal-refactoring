@@ -14,12 +14,12 @@ You will need the following things properly installed on your computer.
 * `npm install -g typescript`
 * `npm install -g typings`
 * `typings install`
-* `npm install -g webpack-web-server`
+* `npm install -g webpack-dev-server`
 
 ## Running / Development
 
 * `cd nfms-portal-refactoring`
-* `webpack-web-server`
+* `webpack-dev-server`
 
 You will get some TypeScript compile error but it's normal at this stage, the JavaScript bundle will be generated anyway.
 
