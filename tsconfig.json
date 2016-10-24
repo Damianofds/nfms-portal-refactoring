@@ -7,7 +7,7 @@
     "outDir": "./build/"
   },
   "files": [
-    "./typings/tsd.d.ts"
+    "./typings/index.d.ts"
   ],
   "include": [
     "./src/**/*"

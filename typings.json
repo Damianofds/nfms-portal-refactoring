@@ -1,0 +1,9 @@
+{
+  "name": "nfms-portal-refactoring",
+  "globalDependencies": {
+    "jquery": "github:DefinitelyTyped/DefinitelyTyped/jquery/jquery.d.ts#93cd5a76d0cd1ea7c2a4968979a659a561afd112",
+    "openlayers-2.10.0": "github:DefinitelyTyped/DefinitelyTyped/openlayers/openlayers-2.10.0.d.ts#4a3c0197cc63cffda7570844c3f6ebc9f4475587",
+    "jqueryui": "github:DefinitelyTyped/DefinitelyTyped/jqueryui/jqueryui.d.ts#93cd5a76d0cd1ea7c2a4968979a659a561afd112",
+    "fancybox": "github:DefinitelyTyped/DefinitelyTyped/fancybox/fancybox.d.ts#93cd5a76d0cd1ea7c2a4968979a659a561afd112"
+  }
+}
